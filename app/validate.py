@@ -251,6 +251,29 @@ def check_action_mode(body, reply_mode):
     return errors
 
 
+def validate_reply(body, reply_mode=None, conv_bodies=()):
+    """Brief-independent subset of `validate` for reply-turn bodies, where
+    there is no Brief (category taboo/vocab, grounding facts) to check
+    against. Used to sanity-check LLM-written replies before accepting them."""
+    if body is None:
+        return ["EMPTY"]
+    errors = check_length(body)
+    if "EMPTY" in errors:
+        return errors
+    errors += check_url(body)
+    body_lower = body.lower()
+    for w in sorted(GLOBAL_TABOO):
+        if re.search(r"\b" + re.escape(w) + r"\b", body_lower):
+            errors.append(f"TABOO:{w}")
+    errors += check_preamble(body)
+    errors += check_jargon(body)
+    errors += check_repeat(body, conv_bodies)
+    errors += check_plagiarism(body)
+    errors += check_devanagari(body)
+    errors += check_action_mode(body, reply_mode)
+    return errors
+
+
 def validate(body, brief, conv_bodies=(), reply_mode=None):
     if body is None:
         return ["EMPTY"]
