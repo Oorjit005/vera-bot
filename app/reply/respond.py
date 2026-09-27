@@ -108,14 +108,14 @@ def _fallback_answer(text):
     # up the actual price/date/source, so these are generic, conservative
     # holding replies rather than invented facts.
     t = (text or "").lower()
+    if re.search(r"how long|kitna time|\btime\b", t):
+        return "It takes about 10 minutes of your time."
     if re.search(r"price|cost|kitna", t):
         return "I'll share the price along with the details."
     if re.search(r"when|kab|\bdate\b", t):
         return "I'll confirm the exact date and share it here."
     if re.search(r"source|proof|study", t):
         return "I'll share the source for that."
-    if re.search(r"how long|\btime\b", t):
-        return "It takes about 10 minutes of your time."
     return "I'll confirm that and get back to you here."
 
 
