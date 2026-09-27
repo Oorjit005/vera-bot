@@ -5,9 +5,9 @@ def _bool(v: str) -> bool:
     return v.strip().lower() not in ("0", "false", "no", "")
 
 
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY") or None
-WRITER_MODEL = os.environ.get("WRITER_MODEL", "claude-sonnet-5")
-LLM_ENABLED = _bool(os.environ.get("LLM_ENABLED", "1")) and ANTHROPIC_API_KEY is not None
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or None
+WRITER_MODEL = os.environ.get("WRITER_MODEL", "gemini-2.0-flash")
+LLM_ENABLED = _bool(os.environ.get("LLM_ENABLED", "1")) and GEMINI_API_KEY is not None
 LLM_MAX_CALLS = int(os.environ.get("LLM_MAX_CALLS", "4000"))
 LLM_CONCURRENCY = int(os.environ.get("LLM_CONCURRENCY", "8"))
 LLM_TIMEOUT_S = float(os.environ.get("LLM_TIMEOUT_S", "7.0"))
@@ -22,6 +22,6 @@ SUBMITTED_AT = os.environ.get("SUBMITTED_AT", "")
 DATASET_DIR = os.environ.get("DATASET_DIR", "../magicpin-ai-challenge/expanded")
 PORT = int(os.environ.get("PORT", "8080"))
 APPROACH = (
-    "deterministic brief (facts+playbook) -> claude-sonnet-5 writer -> deterministic "
+    "deterministic brief (facts+playbook) -> Gemini writer -> deterministic "
     "validator -> deterministic template fallback; rules-first reply classifier"
 )
