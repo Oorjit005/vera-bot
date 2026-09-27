@@ -99,6 +99,11 @@ def _call_gemini_sync(system_text: str, user_text: str, schema: dict, timeout_s:
             "responseMimeType": "application/json",
             "responseSchema": schema,
             "maxOutputTokens": 1024,
+            # Gemini 3.x models "think" by default, which eats maxOutputTokens
+            # before the actual JSON is written and truncates the response.
+            # The decision logic already lives in the deterministic Brief, so
+            # the writer only needs to phrase it - no reasoning budget needed.
+            "thinkingConfig": {"thinkingBudget": 0},
         },
     }
     req = urllib.request.Request(

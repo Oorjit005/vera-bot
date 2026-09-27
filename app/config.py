@@ -6,7 +6,7 @@ def _bool(v: str) -> bool:
 
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or None
-WRITER_MODEL = os.environ.get("WRITER_MODEL", "gemini-2.0-flash")
+WRITER_MODEL = os.environ.get("WRITER_MODEL", "gemini-3.1-flash-lite")
 LLM_ENABLED = _bool(os.environ.get("LLM_ENABLED", "1")) and GEMINI_API_KEY is not None
 LLM_MAX_CALLS = int(os.environ.get("LLM_MAX_CALLS", "4000"))
 LLM_CONCURRENCY = int(os.environ.get("LLM_CONCURRENCY", "8"))

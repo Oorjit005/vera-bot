@@ -104,8 +104,11 @@ def build_cde_opportunity(kind, facts, category, merchant, trigger, customer):
     credits = payload.get("credits") or item.get("credits")
     fee = payload.get("fee")
     summary = item.get("summary", "") or ""
-    speaker_m = re.search(r"Speaker:\s*([^.]+)\.", summary)
-    speaker = speaker_m.group(1).strip() if speaker_m else None
+    # "Speaker: Dr. R. Mehta. Covers ..." - protect title/initial abbreviations
+    # (Dr., R.) from being mistaken for the sentence-ending period.
+    protected = re.sub(r"\b([A-Z][a-z]{0,3}|[A-Z])\.(?=\s)", r"\1\0", summary)
+    speaker_m = re.search(r"Speaker:\s*([^.]+)\.", protected)
+    speaker = speaker_m.group(1).replace("\0", ".").strip() if speaker_m else None
 
     ev_parts = []
     if credits:

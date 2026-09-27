@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+import time
 
 from app import config, templates
 from app.playbook import build_brief
@@ -24,23 +25,31 @@ async def compose(category, merchant, trigger, customer=None, now=None, conv_bod
 
     body = None
     rationale = None
-    text = None
+    t0 = time.monotonic()
     try:
         from app import writer
         if config.LLM_ENABLED:
             text = writer.get_cached(brief)
             if text is None:
                 text = await writer.write(brief)
+            if text and isinstance(text, dict) and text.get("body"):
+                errors = validate(text["body"], brief, conv_bodies)
+                if not errors:
+                    body = text["body"]
+                    rationale = text.get("rationale") or brief.rationale()
+                elif time.monotonic() - t0 < 4.0:
+                    # PLAN §8 retry policy: one retry with the validator's
+                    # complaints folded into the prompt, if there's still time.
+                    retry_text = await writer.write(brief, extra_rules=", ".join(errors))
+                    if retry_text and isinstance(retry_text, dict) and retry_text.get("body"):
+                        retry_errors = validate(retry_text["body"], brief, conv_bodies)
+                        if not retry_errors:
+                            body = retry_text["body"]
+                            rationale = retry_text.get("rationale") or brief.rationale()
     except ImportError:
-        text = None
+        pass
     except Exception:
-        text = None
-
-    if text and isinstance(text, dict) and text.get("body"):
-        errors = validate(text["body"], brief, conv_bodies)
-        if not errors:
-            body = text["body"]
-            rationale = text.get("rationale") or brief.rationale()
+        pass
 
     if body is None:
         variant = _variant_for(brief.merchant_id, brief.kind)

@@ -1,3 +1,4 @@
+import asyncio
 import time
 from datetime import datetime, timezone
 
@@ -106,7 +107,12 @@ async def post_reply(request: Request):
             body = {}
         try:
             from app.reply.respond import respond
-            result = await respond(body if isinstance(body, dict) else {})
+            try:
+                result = await asyncio.wait_for(
+                    respond(body if isinstance(body, dict) else {}), timeout=config.REPLY_DEADLINE_S,
+                )
+            except asyncio.TimeoutError:
+                result = {"action": "wait", "wait_seconds": 300, "rationale": "internal recovery"}
             return JSONResponse(status_code=200, content=result)
         except ImportError:
             return JSONResponse(status_code=200, content={
