@@ -1,6 +1,7 @@
 .env
 __pycache__/
 *.pyc
-out/
+out/*
+!out/submission.jsonl
 .pytest_cache/
 .venv/
