@@ -105,6 +105,6 @@ def client(base_url):
     c.post("/v1/teardown")
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def dataset_dir():
     return DATASET_DIR
